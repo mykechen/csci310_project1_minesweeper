@@ -30,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         cell_tvs = new ArrayList<TextView>();
 
         // Method (1): add statically created cells
@@ -102,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
                 cell_tvs.add(tv);
             }
         }
-
     }
 
     private int findIndexOfCellTextView(TextView tv) {

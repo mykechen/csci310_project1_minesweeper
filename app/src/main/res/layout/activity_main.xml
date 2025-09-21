@@ -6,6 +6,42 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Simple Header with Left and Right Titles -->
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#6200EE"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/app_name_left"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/header_left_title"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="start|center_vertical" />
+
+        <TextView
+            android:id="@+id/app_name_right"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/header_right_title"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="end|center_vertical" />
+
+    </LinearLayout>
+
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/gridLayout01"
         android:layout_width="150dp"
@@ -20,9 +56,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
-
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
 
         <TextView
             android:id="@+id/textView00"
