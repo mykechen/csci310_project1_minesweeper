@@ -101,11 +101,11 @@ public class MainActivity extends AppCompatActivity {
                     long elapsedTime = System.currentTimeMillis() - startTime;
                     int seconds = (int) (elapsedTime / 1000);
 
-                    // Format time as just the number (no leading zeros)
+                    // format time in seconds
                     String timeText = String.valueOf(seconds);
                     timerDisplay.setText(timeText);
 
-                    // Update every second for cleaner updates
+                    // update every second
                     timerHandler.postDelayed(this, 1000);
                 }
             }
@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void startTimer() {
         if (!isTimerRunning) {
-            System.out.println("Starting timer...");
             isTimerRunning = true;
             startTime = System.currentTimeMillis();
             timerHandler.post(timerRunnable);
@@ -135,33 +134,30 @@ public class MainActivity extends AppCompatActivity {
         modeButton = findViewById(R.id.mode_button);
 
         if (modeButton == null) {
-            System.out.println("ERROR: mode_button not found!");
             return;
         }
 
         modeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Toggle mode and update icon in one function
+                // check if we're in pickaxe mode or flag mode
                 isPickaxeMode = !isPickaxeMode;
 
                 if (isPickaxeMode) {
                     modeButton.setText(getString(R.string.pick)); // switch to pickaxe
-                    System.out.println("Switched to pickaxe mode");
                 } else {
                     modeButton.setText(getString(R.string.flag)); // switch to flag
-                    System.out.println("Switched to flag mode");
                 }
             }
         });
     }
 
     private void initializeMineField() {
-        // Initialize minefield and revealed arrays
+        // initialize minefield and revealed arrays
         minefield = new boolean[COLUMN_COUNT][COLUMN_COUNT];
         revealed = new boolean[COLUMN_COUNT][COLUMN_COUNT];
 
-        // Clear both arrays
+        // clear both arrays for new game
         for (int i = 0; i < COLUMN_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
                 minefield[i][j] = false;
@@ -169,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Place mines randomly
+        // place mines randomly
         java.util.Random random = new java.util.Random();
         int minesPlaced = 0;
 
@@ -177,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             int row = random.nextInt(10);
             int col = random.nextInt(10);
 
-            // Check if this position doesn't already have a mine
+            // check if this position doesn't already have a mine
             if (!minefield[row][col]) {
                 minefield[row][col] = true;
                 minesPlaced++;
@@ -186,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         System.out.println("Total mines placed: " + minesPlaced);
-        printMineLocations(); // Debug output
     }
 
     private void printMineLocations() {
@@ -202,11 +197,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void resetGrid() {
-        // Reset all cell appearances to starting state
         for (TextView cell : cell_tvs) {
             cell.setText("");
             cell.setTextColor(Color.BLACK);
-            cell.setBackgroundColor(Color.parseColor("#88E788")); // Starting color
+            cell.setBackgroundColor(Color.parseColor("#88E788"));
         }
     }
 
@@ -226,278 +220,229 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickTV(View view) {
-        try {
-            // check if game over - if so, don't process any more moves
-            if (gameOver) {
-                System.out.println("Game is over, ignoring click");
+        // check if game over - if so, don't process any more moves
+        if (gameOver) {
+            return;
+        }
+
+        // start timer on first click
+        if (!isTimerRunning) {
+            startTimer();
+            gameStarted = true;
+        }
+
+        TextView tv = (TextView) view;
+        int n = findIndexOfCellTextView(tv);
+
+        // validate cell index
+        if (n < 0 || n >= cell_tvs.size()) {
+            return;
+        }
+
+        int i = n / COLUMN_COUNT;
+        int j = n % COLUMN_COUNT;
+
+        // check if coords are valid
+        if (i < 0 || i >= 10 || j < 0 || j >= 10) {
+            return;
+        }
+
+        System.out.println("Clicked cell at (" + i + ", " + j + "), mode: " + (isPickaxeMode ? "dig" : "flag"));
+
+        if (isPickaxeMode) {
+            // Digging mode
+
+            // can't dig flagged cells
+            String currentText = tv.getText().toString();
+            String flagText = getString(R.string.flag);
+            if (currentText.equals(flagText)) {
+                System.out.println("Cannot dig flagged cell at (" + i + ", " + j + ")");
                 return;
             }
 
-            // start timer on first click
-            if (!isTimerRunning) {
-                System.out.println("First click detected - starting timer");
-                startTimer();
-                gameStarted = true;
-            }
-
-            TextView tv = (TextView) view;
-            int n = findIndexOfCellTextView(tv);
-
-            // Validate cell index
-            if (n < 0 || n >= cell_tvs.size()) {
-                System.out.println("ERROR: Invalid cell index: " + n);
+            // can't dig already revealed cells
+            if (revealed[i][j]) {
+                System.out.println("Cell (" + i + ", " + j + ") already revealed");
                 return;
             }
 
-            int i = n / COLUMN_COUNT;
-            int j = n % COLUMN_COUNT;
+            if (isMine(i, j)) {
+                // hit a mine - game over (LOSE)
 
-            // Validate coordinates
-            if (i < 0 || i >= 10 || j < 0 || j >= 10) {
-                System.out.println("ERROR: Invalid coordinates: (" + i + ", " + j + ")");
-                return;
-            }
+                // mark as revealed and show mine
+                revealed[i][j] = true;
+                tv.setText(getString(R.string.mine));
+                tv.setTextColor(Color.RED);
+                tv.setBackgroundColor(Color.parseColor("#ffcccb")); // Light coral
 
-            System.out.println("Clicked cell at (" + i + ", " + j + "), mode: " + (isPickaxeMode ? "dig" : "flag"));
+                // end game and reveal all mines
+                endGame(false); // false = lost
 
-            if (isPickaxeMode) {
-                // Digging mode
+                revealAllMines();
 
-                // Can't dig flagged cells
-                String currentText = tv.getText().toString();
-                String flagText = getString(R.string.flag);
-                if (currentText.equals(flagText)) {
-                    System.out.println("Cannot dig flagged cell at (" + i + ", " + j + ")");
-                    return;
-                }
-
-                // Can't dig already revealed cells
-                if (revealed[i][j]) {
-                    System.out.println("Cell (" + i + ", " + j + ") already revealed");
-                    return;
-                }
-
-                if (isMine(i, j)) {
-                    // Hit a mine - game over (LOSE)
-                    System.out.println("BOOM! Hit mine at (" + i + ", " + j + ")");
-
-                    // Mark as revealed and show mine
-                    revealed[i][j] = true;
-                    tv.setText(getString(R.string.mine));
-                    tv.setTextColor(Color.RED);
-                    tv.setBackgroundColor(Color.parseColor("#ffcccb")); // Light coral
-
-                    // End game first
-                    endGame(false); // false = lost
-
-                    // Start sequential mine reveal animation
-                    revealAllMinesSequentially();
-
-                } else {
-                    // Safe cell - use flood fill to reveal connected cells
-                    revealCellRecursively(i, j);
-
-                    // Check for win condition after revealing
-                    if (checkWinCondition()) {
-                        System.out.println("WIN CONDITION MET!");
-                        endGame(true); // true = won
-
-                        // For wins, go directly to results (no mine reveal needed)
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                showResults();
-                            }
-                        }, 1000); // 1 second delay for win
-                    }
-                }
             } else {
-                // Flagging mode
+                // Safe cell
+                revealCellRecursively(i, j); // reveal all adjacent cells
 
-                // Can't flag an already revealed cell
-                if (revealed[i][j]) {
-                    System.out.println("Cannot flag revealed cell at (" + i + ", " + j + ")");
-                    return;
-                }
+                // check for win condition after revealing
+                if (checkWinCondition()) {
+                    endGame(true); // true = won
 
-                String currentText = tv.getText().toString();
-                String flagText = getString(R.string.flag);
-
-                // Toggle flag
-                if (currentText.equals(flagText)) {
-                    // Remove flag
-                    tv.setText("");
-                    tv.setTextColor(Color.BLACK);
-                    tv.setBackgroundColor(Color.parseColor("#88E788")); // Back to starting color
-                    System.out.println("Removed flag at (" + i + ", " + j + ")");
-                } else if (currentText.equals("")) {
-                    // Add flag
-                    tv.setText(getString(R.string.flag));
-                    tv.setTextColor(Color.RED);
-                    tv.setBackgroundColor(Color.YELLOW);
-                    System.out.println("Added flag at (" + i + ", " + j + ")");
+                    // go to results screen
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showResults();
+                        }
+                    }, 1000);
                 }
             }
+        } else {
+            // Flagging mode
 
-        } catch (Exception e) {
-            System.out.println("ERROR in onClickTV: " + e.getMessage());
-            e.printStackTrace();
+            // can't flag an already revealed cell
+            if (revealed[i][j]) {
+                return;
+            }
+
+            String currentText = tv.getText().toString();
+            String flagText = getString(R.string.flag);
+
+            // Toggle flag
+            if (currentText.equals(flagText)) {
+                // Remove flag
+                tv.setText("");
+                tv.setTextColor(Color.BLACK);
+            } else if (currentText.equals("")) {
+                // Add flag
+                tv.setText(getString(R.string.flag));
+                tv.setTextColor(Color.RED);
+            }
         }
     }
 
     private void revealCellRecursively(int row, int col) {
-        try {
-            // Check bounds
-            if (row < 0 || row >= 10 || col < 0 || col >= 10) {
-                return;
-            }
+        // check boundaries
+        if (row < 0 || row >= 10 || col < 0 || col >= 10) {
+            return;
+        }
 
-            // Don't reveal if already revealed, is a mine
-            if (revealed[row][col] || isMine(row, col)) {
-                return;
-            }
+        // don't reveal if already revealed, is a mine
+        if (revealed[row][col] || isMine(row, col)) {
+            return;
+        }
 
-            // Get the cell TextView
-            int index = row * COLUMN_COUNT + col;
-            if (index < 0 || index >= cell_tvs.size()) {
-                return;
-            }
+        int index = row * COLUMN_COUNT + col;
+        if (index < 0 || index >= cell_tvs.size()) {
+            return;
+        }
 
-            TextView cell = cell_tvs.get(index);
-            String currentText = cell.getText().toString();
-            String flagText = getString(R.string.flag);
+        TextView cell = cell_tvs.get(index);
+        String currentText = cell.getText().toString();
+        String flagText = getString(R.string.flag);
 
-            // Don't reveal flagged cells
-            if (currentText.equals(flagText)) {
-                return;
-            }
+        // don't reveal flagged cells
+        if (currentText.equals(flagText)) {
+            return;
+        }
 
-            // Mark as revealed
-            revealed[row][col] = true;
+        // mark as revealed
+        revealed[row][col] = true;
 
-            // Count adjacent mines
-            int adjacentMines = countAdjacentMines(row, col);
+        // count adjacent mines
+        int adjacentMines = countAdjacentMines(row, col);
 
-            // Set text and appearance
-            cell.setText(adjacentMines == 0 ? "" : String.valueOf(adjacentMines));
-            cell.setTextColor(Color.BLACK);
-            cell.setBackgroundColor(Color.parseColor("#E0E0E0")); // Revealed color
+        // set text and appearance
+        cell.setText(adjacentMines == 0 ? "" : String.valueOf(adjacentMines));
+        cell.setTextColor(Color.BLACK);
+        cell.setBackgroundColor(Color.parseColor("#E0E0E0")); // Revealed color
 
-            System.out.println("Revealed cell (" + row + ", " + col + ") - Adjacent mines: " + adjacentMines);
-
-            // If this cell has no adjacent mines, recursively reveal all adjacent cells
-            if (adjacentMines == 0) {
-                // Reveal all 8 adjacent cells
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (i == 0 && j == 0) continue; // Skip center cell
-                        revealCellRecursively(row + i, col + j);
-                    }
+        //fIf this cell has no adjacent mines, recursively reveal all adjacent cells
+        if (adjacentMines == 0) {
+            // reveal all 8 adjacent cells
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i == 0 && j == 0) continue; // skip center cell
+                    revealCellRecursively(row + i, col + j);
                 }
             }
-
-        } catch (Exception e) {
-            System.out.println("ERROR in revealCellRecursively: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    private void revealAllMinesSequentially() {
-        try {
-            System.out.println("Starting sequential mine reveal...");
+    private void revealAllMines() {
+        // get all mine positions
+        ArrayList<int[]> minePositions = new ArrayList<>();
+        String mineText = getString(R.string.mine);
 
-            // Collect all mine positions
-            ArrayList<int[]> minePositions = new ArrayList<>();
-            String mineText = getString(R.string.mine);
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (isMine(i, j)) {
+                    int index = i * COLUMN_COUNT + j;
+                    if (index >= 0 && index < cell_tvs.size()) {
+                        TextView cell = cell_tvs.get(index);
+                        String currentText = cell.getText().toString();
 
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 10; j++) {
-                    if (isMine(i, j)) {
-                        int index = i * COLUMN_COUNT + j;
-                        if (index >= 0 && index < cell_tvs.size()) {
-                            TextView cell = cell_tvs.get(index);
-                            String currentText = cell.getText().toString();
-
-                            // Only add mines that aren't already revealed
-                            if (!currentText.equals(mineText)) {
-                                minePositions.add(new int[]{i, j});
-                            }
+                        // only add mines that aren't already revealed
+                        if (!currentText.equals(mineText)) {
+                            minePositions.add(new int[]{i, j});
                         }
                     }
                 }
             }
-
-            System.out.println("Found " + minePositions.size() + " mines to reveal");
-
-            // Reveal mines one by one with delays
-            revealMineAtIndex(minePositions, 0);
-
-        } catch (Exception e) {
-            System.out.println("ERROR in revealAllMinesSequentially: " + e.getMessage());
-            e.printStackTrace();
-            // Fallback - go directly to results
-            showResults();
         }
+
+        System.out.println("Found " + minePositions.size() + " mines to reveal");
+
+        // reveal mines one by one with delays
+        revealMineAtIndex(minePositions, 0);
     }
 
-    // Recursive method to reveal mines with delays
     private void revealMineAtIndex(ArrayList<int[]> minePositions, int currentIndex) {
-        try {
-            if (currentIndex >= minePositions.size()) {
-                // All mines revealed, now transition to results
-                System.out.println("All mines revealed, transitioning to results...");
+        if (currentIndex >= minePositions.size()) {
+            // check if all mines revealed to transition to results
 
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("Final delay completed, calling showResults()");
-                        showResults();
-                    }
-                }, 1500); // Increased to 1.5 second delay after last mine
-                return;
-            }
-
-            // Reveal current mine
-            int[] position = minePositions.get(currentIndex);
-            int row = position[0];
-            int col = position[1];
-            int index = row * COLUMN_COUNT + col;
-
-            if (index >= 0 && index < cell_tvs.size()) {
-                TextView cell = cell_tvs.get(index);
-                cell.setText(getString(R.string.mine));
-                cell.setTextColor(Color.RED);
-                cell.setBackgroundColor(Color.parseColor("#ffcccb")); // Light coral
-                System.out.println("Revealed mine " + (currentIndex + 1) + " at (" + row + ", " + col + ")");
-            }
-
-            // Schedule next mine reveal
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    revealMineAtIndex(minePositions, currentIndex + 1);
+                    System.out.println("Final delay completed, calling showResults()");
+                    showResults();
                 }
-            }, 400); // Slightly increased delay between mines
-
-        } catch (Exception e) {
-            System.out.println("ERROR in revealMineAtIndex: " + e.getMessage());
-            e.printStackTrace();
-            // Fallback - go directly to results
-            System.out.println("Error occurred, falling back to showResults()");
-            showResults();
+            }, 1500);
+            return;
         }
+
+        // reveal current mine
+        int[] position = minePositions.get(currentIndex);
+        int row = position[0];
+        int col = position[1];
+        int index = row * COLUMN_COUNT + col;
+
+        if (index >= 0 && index < cell_tvs.size()) {
+            TextView cell = cell_tvs.get(index);
+            cell.setText(getString(R.string.mine));
+            cell.setTextColor(Color.RED);
+            cell.setBackgroundColor(Color.parseColor("#ffcccb")); // Light coral
+        }
+
+        // get next mine reveal
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                revealMineAtIndex(minePositions, currentIndex + 1);
+            }
+        }, 500);
     }
 
     private int countAdjacentMines(int row, int col) {
         int count = 0;
 
-        // Check all 8 adjacent cells
+        // check all 8 adjacent cells
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue; // Skip center cell
+                if (i == 0 && j == 0) continue; // skips the center call
                 if (isMine(row + i, col + j)) count++;
             }
         }
@@ -506,10 +451,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkWinCondition() {
-        // Check if all non-mine cells are revealed
+        // check if all non-mine cells are revealed
         for (int i = 0; i < COLUMN_COUNT; i++) {
             for (int j = 0; j < COLUMN_COUNT; j++) {
-                // If found a cell that is not a mine and not revealed, game is not won
+                // if found a cell that is not a mine and not revealed, game is not over
                 if (!isMine(i, j) && !revealed[i][j]) {
                     return false;
                 }
@@ -520,58 +465,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void endGame(boolean won) {
-        try {
-            gameOver = true;
-            stopTimer();
-            System.out.println("Game ended. Result: " + (won ? "WON" : "LOST"));
-
-        } catch (Exception e) {
-            System.out.println("ERROR in endGame: " + e.getMessage());
-            e.printStackTrace();
-        }
+        gameOver = true;
+        stopTimer();
     }
 
     private void showResults() {
-        try {
-            System.out.println("=== SHOW RESULTS CALLED ===");
-
-            // Get elapsed time
-            long elapsedTime = 0;
-            if (startTime > 0) {
-                elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
-            }
-
-            boolean won = checkWinCondition();
-            System.out.println("Game state - Won: " + won + ", Time: " + elapsedTime + " seconds");
-            System.out.println("Creating intent for ResultActivity...");
-
-            // Show results in ResultActivity screen
-            Intent intent = new Intent(MainActivity.this, ResultActivity.class);
-            intent.putExtra("GAME_WON", won);
-            intent.putExtra("TIME_ELAPSED", (int) elapsedTime);
-
-            System.out.println("Starting ResultActivity...");
-            startActivity(intent);
-            System.out.println("ResultActivity started successfully");
-
-            // DON'T reset game here - let ResultActivity handle the return
-
-        } catch (Exception e) {
-            System.out.println("ERROR in showResults: " + e.getMessage());
-            e.printStackTrace();
-
-            // If there's an error, try a simple approach
-            System.out.println("Attempting fallback ResultActivity launch...");
-            try {
-                Intent fallbackIntent = new Intent(MainActivity.this, ResultActivity.class);
-                fallbackIntent.putExtra("GAME_WON", false);
-                fallbackIntent.putExtra("TIME_ELAPSED", 0);
-                startActivity(fallbackIntent);
-            } catch (Exception e2) {
-                System.out.println("Fallback also failed: " + e2.getMessage());
-                e2.printStackTrace();
-            }
+        // get elapsed time
+        long elapsedTime = 0;
+        if (startTime > 0) {
+            elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
         }
+
+        boolean won = checkWinCondition();
+
+        // show results in ResultActivity screen
+        Intent intent = new Intent(MainActivity.this, ResultActivity.class);
+        intent.putExtra("GAME_WON", won);
+        intent.putExtra("TIME_ELAPSED", (int) elapsedTime);
+
+        // goes to results screen
+        startActivity(intent);
     }
 
     public void newGame() {
@@ -580,23 +493,18 @@ public class MainActivity extends AppCompatActivity {
         resetGrid();
         gameStarted = false;
         gameOver = false;
-        System.out.println("New game started!");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Clean up timer when activity is destroyed
         stopTimer();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Only reset game if we're returning from ResultActivity
-        // Check if game is over and we need a fresh start
         if (gameOver) {
-            System.out.println("Returning from results, starting new game");
             newGame();
         }
     }
