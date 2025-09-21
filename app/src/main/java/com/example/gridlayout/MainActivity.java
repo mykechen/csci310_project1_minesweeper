@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private Runnable timerRunnable;
     private long startTime;
     private boolean isTimerRunning = false;
+    private int finalGameTime = 0;
 
     // Mode variables
     private TextView modeButton;
@@ -356,9 +357,9 @@ public class MainActivity extends AppCompatActivity {
         // set text and appearance
         cell.setText(adjacentMines == 0 ? "" : String.valueOf(adjacentMines));
         cell.setTextColor(Color.BLACK);
-        cell.setBackgroundColor(Color.parseColor("#E0E0E0")); // Revealed color
+        cell.setBackgroundColor(Color.parseColor("#E0E0E0"));
 
-        //fIf this cell has no adjacent mines, recursively reveal all adjacent cells
+        //if this cell has no adjacent mines, recursively reveal all adjacent cells
         if (adjacentMines == 0) {
             // reveal all 8 adjacent cells
             for (int i = -1; i <= 1; i++) {
@@ -467,6 +468,13 @@ public class MainActivity extends AppCompatActivity {
     private void endGame(boolean won) {
         gameOver = true;
         stopTimer();
+
+        if (startTime > 0) {
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            finalGameTime = (int) (elapsedTime / 1000);
+        } else {
+            finalGameTime = 0;
+        }
     }
 
     private void showResults() {
@@ -481,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
         // show results in ResultActivity screen
         Intent intent = new Intent(MainActivity.this, ResultActivity.class);
         intent.putExtra("GAME_WON", won);
-        intent.putExtra("TIME_ELAPSED", (int) elapsedTime);
+        intent.putExtra("TIME_ELAPSED", finalGameTime);
 
         // goes to results screen
         startActivity(intent);
@@ -493,6 +501,7 @@ public class MainActivity extends AppCompatActivity {
         resetGrid();
         gameStarted = false;
         gameOver = false;
+        finalGameTime = 0;
     }
 
     @Override
