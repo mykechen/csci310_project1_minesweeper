@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Simple Header with Left and Right Titles -->
+    <!-- Header Bar with name-->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="0dp"
@@ -42,85 +42,90 @@
 
     </LinearLayout>
 
+    <!-- Game Info Bar with Flag and Clock -->
+    <LinearLayout
+        android:id="@+id/game_info_layout"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout01"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Flag Counter -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="start|center_vertical">
+
+            <TextView
+                android:id="@+id/flag_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/flag"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/flag_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+
+        </LinearLayout>
+
+        <!-- Clock/Timer -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="end|center_vertical">
+
+            <TextView
+                android:id="@+id/clock_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/clock"
+                android:textSize="24sp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/timer_display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Game Grid -->
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/gridLayout01"
-        android:layout_width="150dp"
-        android:layout_height="500dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_width="340dp"
+        android:layout_height="340dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:layout_gravity="center"
         app:rowCount="10"
-        app:columnCount="2"
+        app:columnCount="10"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout">
-
-        <TextView
-            android:id="@+id/textView00"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:height="64dp"
-            android:width="64dp"
-            android:text="@string/flag"
-            android:textSize="32sp"
-            android:textAlignment="center"
-            app:layout_column="0"
-            app:layout_row="0" />
-
-        <TextView
-            android:id="@+id/textView01"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:height="64dp"
-            android:width="64dp"
-            android:text="@string/mine"
-            android:textSize="32sp"
-            android:textAlignment="center"
-            app:layout_column="1"
-            app:layout_row="0" />
-
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:height="64dp"
-            android:width="64dp"
-            android:text="10"
-            android:textSize="32sp"
-            android:textAlignment="center"
-            app:layout_column="0"
-            app:layout_row="1" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:width="64dp"
-            android:height="64dp"
-            android:text="11"
-            android:textSize="32sp"
-            android:textAlignment="center"
-            app:layout_column="1"
-            app:layout_row="1" />
+        app:layout_constraintTop_toBottomOf="@id/header_layout"        >
 
     </androidx.gridlayout.widget.GridLayout>
 
