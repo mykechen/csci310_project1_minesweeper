@@ -50,7 +50,7 @@
         android:orientation="horizontal"
         android:padding="12dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/gridLayout01"
+        app:layout_constraintBottom_toTopOf="@id/gridLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -67,15 +67,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/flag"
-                android:textSize="24sp"
+                android:textSize="36sp"
                 android:layout_marginEnd="8dp" />
 
             <TextView
                 android:id="@+id/flag_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="10"
-                android:textSize="18sp"
+                android:text="5"
+                android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="#333333" />
 
@@ -94,15 +94,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/clock"
-                android:textSize="24sp"
+                android:textSize="36sp"
                 android:layout_marginEnd="8dp" />
 
             <TextView
                 android:id="@+id/timer_display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="000"
-                android:textSize="18sp"
+                android:text="0"
+                android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="#333333" />
 
@@ -112,7 +112,7 @@
 
     <!-- Game Grid -->
     <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/gridLayout01"
+        android:id="@+id/gridLayout"
         android:layout_width="340dp"
         android:layout_height="340dp"
         android:layout_marginStart="16dp"
@@ -125,8 +125,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout"        >
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
 
     </androidx.gridlayout.widget.GridLayout>
+
+    <TextView
+        android:id="@+id/mode_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:text="@string/pick"
+        android:textSize="48sp"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintTop_toBottomOf="@id/gridLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
