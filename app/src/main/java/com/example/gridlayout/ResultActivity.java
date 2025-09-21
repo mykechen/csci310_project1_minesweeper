@@ -47,13 +47,13 @@ public class ResultActivity extends AppCompatActivity {
         // Display the result based on win/lose
         if (gameWon) {
             resultText.setText("You won");
-            resultText.setTextColor(Color.parseColor("#4CAF50")); // Green for win
+            resultText.setTextColor(Color.parseColor("#4CAF50"));
             congratsText.setText("Good job!");
             congratsText.setTextColor(Color.parseColor("#666666"));
         } else {
             resultText.setText("You lost");
-            resultText.setTextColor(Color.parseColor("#F44336")); // Red for loss
-            congratsText.setText("Try again!");
+            resultText.setTextColor(Color.parseColor("#F44336"));
+            congratsText.setText("Try again.");
             congratsText.setTextColor(Color.parseColor("#666666"));
         }
 

@@ -277,13 +277,12 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Mark as revealed
-                revealed[i][j] = true;
-
                 if (isMine(i, j)) {
                     // Hit a mine - game over (LOSE)
                     System.out.println("BOOM! Hit mine at (" + i + ", " + j + ")");
 
+                    // Mark as revealed and show mine
+                    revealed[i][j] = true;
                     tv.setText(getString(R.string.mine));
                     tv.setTextColor(Color.RED);
                     tv.setBackgroundColor(Color.parseColor("#ffcccb")); // Light coral
@@ -295,14 +294,10 @@ public class MainActivity extends AppCompatActivity {
                     revealAllMinesSequentially();
 
                 } else {
-                    // Safe cell - show adjacent mine count
-                    int adjacentMines = countAdjacentMines(i, j);
-                    tv.setText(adjacentMines == 0 ? "" : String.valueOf(adjacentMines));
-                    tv.setTextColor(Color.BLACK);
-                    tv.setBackgroundColor(Color.parseColor("#E0E0E0")); // Clicked color
-                    System.out.println("Safe cell (" + i + ", " + j + ") - Adjacent mines: " + adjacentMines);
+                    // Safe cell - use flood fill to reveal connected cells
+                    revealCellRecursively(i, j);
 
-                    // Check for win condition
+                    // Check for win condition after revealing
                     if (checkWinCondition()) {
                         System.out.println("WIN CONDITION MET!");
                         endGame(true); // true = won
@@ -351,7 +346,63 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // NEW METHOD: Reveal mines one by one with animation
+    private void revealCellRecursively(int row, int col) {
+        try {
+            // Check bounds
+            if (row < 0 || row >= 10 || col < 0 || col >= 10) {
+                return;
+            }
+
+            // Don't reveal if already revealed, is a mine
+            if (revealed[row][col] || isMine(row, col)) {
+                return;
+            }
+
+            // Get the cell TextView
+            int index = row * COLUMN_COUNT + col;
+            if (index < 0 || index >= cell_tvs.size()) {
+                return;
+            }
+
+            TextView cell = cell_tvs.get(index);
+            String currentText = cell.getText().toString();
+            String flagText = getString(R.string.flag);
+
+            // Don't reveal flagged cells
+            if (currentText.equals(flagText)) {
+                return;
+            }
+
+            // Mark as revealed
+            revealed[row][col] = true;
+
+            // Count adjacent mines
+            int adjacentMines = countAdjacentMines(row, col);
+
+            // Set text and appearance
+            cell.setText(adjacentMines == 0 ? "" : String.valueOf(adjacentMines));
+            cell.setTextColor(Color.BLACK);
+            cell.setBackgroundColor(Color.parseColor("#E0E0E0")); // Revealed color
+
+            System.out.println("Revealed cell (" + row + ", " + col + ") - Adjacent mines: " + adjacentMines);
+
+            // If this cell has no adjacent mines, recursively reveal all adjacent cells
+            if (adjacentMines == 0) {
+                // Reveal all 8 adjacent cells
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (i == 0 && j == 0) continue; // Skip center cell
+                        revealCellRecursively(row + i, col + j);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("ERROR in revealCellRecursively: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void revealAllMinesSequentially() {
         try {
             System.out.println("Starting sequential mine reveal...");
