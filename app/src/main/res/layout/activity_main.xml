@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Header Bar with name-->
+    <!-- Header Bar with CS310 and Your Name -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="0dp"
@@ -42,7 +42,7 @@
 
     </LinearLayout>
 
-    <!-- Game Info Bar with Flag and Clock -->
+    <!-- Game Info Bar with Flag Count and Timer -->
     <LinearLayout
         android:id="@+id/game_info_layout"
         android:layout_width="300dp"
@@ -125,10 +125,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout">
+        app:layout_constraintTop_toBottomOf="@id/header_layout"
+        app:layout_constraintVertical_bias="0.6">
 
     </androidx.gridlayout.widget.GridLayout>
 
+    <!-- Mode Toggle Button (Pickaxe/Flag) -->
     <TextView
         android:id="@+id/mode_button"
         android:layout_width="wrap_content"
@@ -143,6 +145,5 @@
         app:layout_constraintTop_toBottomOf="@id/gridLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
