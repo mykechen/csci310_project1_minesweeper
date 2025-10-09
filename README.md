@@ -1,5 +1,4 @@
 # Android Minesweeper
-[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/mykechen/csci310_project1_minesweeper)
 
 This repository contains the source code for a classic Minesweeper game developed for the Android platform as part of the CSCI-310 course. The application provides a complete game loop on a 10x10 grid, featuring a timer, gameplay modes, and a results screen.
 
